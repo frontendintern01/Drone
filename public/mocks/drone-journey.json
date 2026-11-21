@@ -1,0 +1,25 @@
+{
+  "journey_id": "AERPAW-FLIGHT2-20250609",
+  "flight_name": "Flight2",
+  "flight_date": "2025-06-09",
+  "drone_classification": "Commercial Drone",
+  "device_info": {
+    "make_model": "DJI_Inspire_2_2G",
+    "serial_number": "D198F554CC0EF6198C"
+  },
+  "journey_details": [
+    {
+      "timestamp": "2025-06-09T15:24:54.797893Z",
+      "latitude": 35.7274898,
+      "longitude": -78.696251,
+      "flight_status": "ground_or_hover_low",
+      "horizontal_speed_mps": 0,
+      "vertical_speed_mps": 0,
+      "heading_deg": null,
+      "altitude_m": 0.434,
+      "height_above_ground_m": 0.434,
+      "altitude_change_m": 0.01,
+      "distance_from_rf_rx_m": 25.37
+    }
+  ]
+}
