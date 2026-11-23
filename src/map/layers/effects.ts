@@ -1,13 +1,14 @@
 import { ScatterplotLayer } from '@deck.gl/layers'
 import type { DroneTarget } from '../../types/drone'
-import { getZoneState } from '../../components/map/operationArea'
+import { getZoneState, type OperationArea } from '../../components/map/operationArea'
 
 export interface EffectsLayerProps {
   selectedDrone: DroneTarget | null
   time: number
+  area: OperationArea
 }
 
-export function getEffectsLayers({ selectedDrone, time }: EffectsLayerProps) {
+export function getEffectsLayers({ selectedDrone, time, area }: EffectsLayerProps) {
   if (!selectedDrone || !selectedDrone.position) return []
 
   // Expanding radar pulse ring directly underneath the selected drone
@@ -18,7 +19,7 @@ export function getEffectsLayers({ selectedDrone, time }: EffectsLayerProps) {
 
   const isHighThreat =
     selectedDrone.threatLevel === 'HIGH' ||
-    getZoneState(selectedDrone.position) === 'no-fly'
+    getZoneState(selectedDrone.position, area) !== 'outside'
 
   const ringColor: [number, number, number, number] = isHighThreat
     ? [244, 63, 94, alpha] // Rose pulse for intruder / no-fly

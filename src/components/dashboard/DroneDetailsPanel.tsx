@@ -25,7 +25,7 @@ function TelemetryCards({ drone }: { drone: DroneSummary }) {
     <div className="rounded-xl border border-cyan-900/70 bg-cyan-950/20 p-3">
       <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-cyan-400"><MapPin className="size-3.5" />GPS location</div>
       <dl className="mt-2 grid grid-cols-2 gap-2 text-xs"><div><dt className="text-[10px] text-slate-500">Latitude</dt><dd className="mt-1 font-mono text-white">{point.latitude}</dd></div><div><dt className="text-[10px] text-slate-500">Longitude</dt><dd className="mt-1 font-mono text-white">{point.longitude}</dd></div></dl>
-      <p className="mt-2 text-[10px] text-emerald-400">Home set at first received GPS fix</p>
+     
     </div>
     <dl className="grid grid-cols-2 gap-2">
       {metrics.map(({ label, value, icon: Icon }) => <div key={label} className="rounded-xl border border-slate-800 bg-slate-900/60 p-3"><dt className="flex items-center gap-1.5 text-[10px] text-slate-400"><Icon className="size-3 text-cyan-500" />{label}</dt><dd className="mt-2 font-mono text-sm font-semibold tabular-nums text-slate-100">{value}</dd></div>)}

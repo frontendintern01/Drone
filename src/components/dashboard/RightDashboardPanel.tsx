@@ -10,7 +10,7 @@ interface RightDashboardPanelProps {
   trackingDrones: readonly DroneSummary[]
   selectedDroneId: string | null
   onSelectDrone: (droneId: string) => void
-  feedStatus: { mode: string; error: string | null; updatedAt: Date | null }
+  feedStatus: { error: string | null; updatedAt: Date | null }
 }
 
 export function RightDashboardPanel({
@@ -30,7 +30,7 @@ export function RightDashboardPanel({
   return (
     <aside className="flex h-full min-h-0 w-full shrink-0 flex-col border-l border-slate-800 bg-slate-950/95 shadow-2xl md:w-[360px]">
       <div className="shrink-0 border-b border-slate-800 px-4 py-2.5 text-[10px] text-slate-400" role="status">
-        <div className="flex justify-between gap-2"><span className={feedStatus.mode === 'mock' ? 'font-bold text-amber-300' : 'font-bold text-cyan-300'}>{feedStatus.mode === 'mock' ? 'SAMPLE DATA · BACKEND PENDING' : 'API JOURNEY FEED'}</span><span>{feedStatus.updatedAt ? `Synced ${feedStatus.updatedAt.toLocaleTimeString()}` : 'Connecting…'}</span></div>
+        {/* <div className="flex justify-between gap-2"><span className="font-bold text-cyan-300">API JOURNEY FEED</span><span>{feedStatus.error ? 'Unavailable' : feedStatus.updatedAt ? `Synced ${feedStatus.updatedAt.toLocaleTimeString()}` : 'Connecting…'}</span></div> */}
         {feedStatus.error && <p className="mt-1 text-rose-300">{feedStatus.error} Retrying… {feedStatus.updatedAt && 'Showing last received data.'}</p>}
       </div>
       <div

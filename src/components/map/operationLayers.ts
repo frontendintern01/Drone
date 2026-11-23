@@ -8,6 +8,22 @@ const svgUrl = (svg: string) => `data:image/svg+xml;charset=utf-8,${encodeURICom
 export const RF_SENSOR_ICON_SVG = svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" fill="#10b981" stroke="#047857" stroke-width="2.5"/><rect x="22.5" y="14" width="3" height="18" rx="1" fill="#0f172a"/><circle cx="24" cy="13" r="3" fill="#0f172a"/><path d="M19 32 L24 23 L29 32" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 10 C15 13 15 17 18 20 M30 10 C33 13 33 17 30 20 M14 6 C9 11 9 20 14 25 M34 6 C39 11 39 20 34 25" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/></svg>`)
 export const LANDING_PAD_ICON_SVG = svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" fill="#ffffff" stroke="#334155" stroke-width="2.5"/><path d="M16 13 V35 M32 13 V35 M18 24 H30" stroke="#0f172a" stroke-width="4"/></svg>`)
 
+/** Zoom from which landing pads and RF sensors are drawn. */
+export const ASSET_ICON_MIN_ZOOM = 6
+const ASSET_ICON_MIN_PX = 16
+const ASSET_ICON_MAX_PX = 40
+
+/**
+ * Landing pad / RF sensor icon size in CSS pixels (deck.gl applies devicePixelRatio,
+ * so this stays consistent across screen resolutions). Grows smoothly with zoom so the
+ * icons stay identifiable when zoomed in, while staying small enough at sector-level
+ * zoom that neighbouring assets do not overlap.
+ */
+export function getAssetIconSize(zoom: number) {
+  const size = ASSET_ICON_MIN_PX + (zoom - ASSET_ICON_MIN_ZOOM) * 6
+  return Math.round(Math.min(ASSET_ICON_MAX_PX, Math.max(ASSET_ICON_MIN_PX, size)))
+}
+
 export function createOperationLayers(
   drones: readonly DroneSummary[],
   zoom = 12,
@@ -18,6 +34,8 @@ export function createOperationLayers(
 ) {
   const showDetails = zoom >= 7.2
   const showAssetLabels = zoom >= 13
+  const showAssets = zoom >= ASSET_ICON_MIN_ZOOM
+  const assetIconSize = getAssetIconSize(zoom)
   const zones = [
     { polygon: operationArea.alert, color: [251, 191, 36, 255], fill: [251, 191, 36, 20] },
     { polygon: operationArea.noFly, color: [244, 63, 94, 255], fill: [244, 63, 94, 55] },
@@ -27,6 +45,7 @@ export function createOperationLayers(
   const effectsLayers = getEffectsLayers({
     selectedDrone: targetDrone,
     time,
+    area: operationArea,
   })
   return [
     new PolygonLayer({
@@ -61,12 +80,14 @@ export function createOperationLayers(
     }),
     new IconLayer({
       id: 'operation-assets',
-      visible: showDetails,
+      visible: showAssets,
       data: operationArea.assets,
       pickable: true,
       getPosition: d => d.position,
-      getSize: zoom >= 14 ? 30 : zoom >= 11 ? 24 : 18,
+      getSize: assetIconSize,
       sizeUnits: 'pixels',
+      sizeMinPixels: ASSET_ICON_MIN_PX,
+      sizeMaxPixels: ASSET_ICON_MAX_PX,
       getIcon: d => ({
         url: d.kind === 'pad' ? LANDING_PAD_ICON_SVG : RF_SENSOR_ICON_SVG,
         width: 48,
@@ -94,7 +115,8 @@ export function createOperationLayers(
       getText: d => d.id,
       getSize: 9.5,
       getColor: [241, 245, 249, 255],
-      getPixelOffset: [0, 18],
+      // Keep the ID label just below the (zoom-scaled) asset icon instead of on top of it.
+      getPixelOffset: [0, assetIconSize / 2 + 10],
       fontFamily: 'Arial, sans-serif',
       fontWeight: 700,
       background: true,

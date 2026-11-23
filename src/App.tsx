@@ -5,9 +5,12 @@ import type { DroneSummary } from '@/components/dashboard/types'
 import { DeckGoogleMap } from '@/components/map/DeckGoogleMap'
 import { createJourneyOperationArea, getZoneAlerts, operationArea } from '@/components/map/operationArea'
 import { useDroneJourney } from '@/hooks/useDroneJourney'
+import { useJourneyPlayback } from '@/hooks/useJourneyPlayback'
+import { droneJourneyConfig } from '@/config/droneJourney'
 
 function App() {
-  const { journey, error, updatedAt, mode } = useDroneJourney()
+  const { journey: feedJourney, error, updatedAt } = useDroneJourney()
+  const journey = useJourneyPlayback(feedJourney, droneJourneyConfig.replaySpeed)
   const points = journey?.journey_details ?? []
   const latest = points.at(-1)
   const homeLng = points[0]?.longitude
@@ -33,18 +36,6 @@ function App() {
     )
     const pathCoords: [number, number][] = filteredPoints.map(point => [point.longitude, point.latitude] as [number, number])
 
-    // Ensure the flight trail always connects seamlessly to the exact home/takeoff pin
-    if (drone.homePosition) {
-      if (pathCoords.length === 0) {
-        pathCoords.push(drone.homePosition)
-      } else if (
-        pathCoords[0][0] !== drone.homePosition[0] ||
-        pathCoords[0][1] !== drone.homePosition[1]
-      ) {
-        pathCoords.unshift(drone.homePosition)
-      }
-    }
-
     return {
       ...drone,
       path: pathCoords,
@@ -61,7 +52,7 @@ function App() {
         onFocusArea={() => focusOperationRef.current?.()}
         onToggleLayersPanel={() => setIsLayersPanelOpen((isOpen) => !isOpen)}
         timeWindowSec={timeWindowSec}
-        feedLabel={mode === 'mock' ? 'SAMPLE DATA' : error ? 'API RETRYING' : updatedAt ? 'API CONNECTED' : 'CONNECTING'}
+        feedLabel={error ? 'API RETRYING' : updatedAt ? 'API CONNECTED' : 'CONNECTING'}
       />
       <main className="flex min-h-0 flex-1" aria-label="Dashboard">
         <DeckGoogleMap
@@ -77,7 +68,7 @@ function App() {
           trackingDrones={trackingDrones}
           selectedDroneId={selectedDroneId ?? detectedDrones[0]?.id ?? null}
           onSelectDrone={setSelectedDroneId}
-          feedStatus={{ mode, error, updatedAt }}
+          feedStatus={{ error, updatedAt }}
         />
       </main>
     </div>
